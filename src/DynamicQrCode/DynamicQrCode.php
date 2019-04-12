@@ -9,61 +9,40 @@
 
 namespace DynamicQrCode;
 
-use Endroid\QrCode\LabelAlignment;
-use Endroid\QrCode\QrCode;
+include 'phpqrcode/phpqrcode.php';
 
 class DynamicQrCode
 {
-    protected $_qr;
-    protected $_encoding = 'UTF-8';
-    protected $_size = 300;
-    protected $_logo = false;
-    protected $_logo_url = '';
-    protected $_logo_size = 80;
-    protected $_title = false;
-    protected $_title_content = '';
-    const MARGIN = 10;
-    const WRITE_NAME = 'png';
-    const FOREGROUND_COLOR = ['r' => 0, 'g' => 0, 'b' => 0, 'a' => 0];
-    const BACKGROUND_COLOR = ['r' => 255, 'g' => 255, 'b' => 255, 'a' => 0];
-
-    public function __construct($config = array())
-    {
-        isset($config['encoding']) && $this->_encoding = $config['encoding'];
-        isset($config['size']) && $this->_size = $config['size'];
-        isset($config['display']) && $this->_size = $config['size'];
-        isset($config['logo']) && $this->_logo = $config['logo'];
-        isset($config['logo_url']) && $this->_logo_url = $config['logo_url'];
-        isset($config['logo_size']) && $this->_logo_size = $config['logo_size'];
-        isset($config['title']) && $this->_title = $config['title'];
-        isset($config['title_content']) && $this->_title_content = $config['title_content'];
-    }
-
     /**
-     * 生成二维码
-     * @param string $content 需要写入的内容
+     * 生成二维码图片
+     * @param string $value 需要写入的内容
+     * @param string $logo logo地址
      * @return string
      */
-    public function toDynamicQrCode($content = '')
+    public static function toDynamicQrCodePng($value = '', $logo = '')
     {
-        $this->_qr = new QrCode($content);
-        $this->_qr->setSize($this->_size);
-        $this->_qr->setWriterByName(self::WRITE_NAME);
-        $this->_qr->setMargin(self::MARGIN);
-        $this->_qr->setEncoding($this->_encoding);
-        $this->_qr->setForegroundColor(self::FOREGROUND_COLOR);
-        $this->_qr->setBackgroundColor(self::BACKGROUND_COLOR);
-        if ($this->_title) {
-            $this->_qr->setLabel($this->_title_content, 16, '字体地址', LabelAlignment::CENTER);
+        $errorCorrectionLevel = 'L';//容错级别
+        $matrixPointSize = 6;//生成图片大小
+        //生成二维码图片
+        \QRcode::png($value, 'qrcode.png', $errorCorrectionLevel, $matrixPointSize, 2);
+        $QR = 'qrcode.png';//已经生成的原始二维码图
+        if (!$logo) {
+            return '<img src="qrcode.png">';
         }
-        if ($this->_logo) {
-            $this->_qr->setLogoPath($this->_logo_url);
-            $this->_qr->setLogoWidth($this->_logo_size);
-            $this->_qr->setRoundBlockSize(true);
-        }
-        $this->_qr->setValidateResult(false);
-
-        header('Content-Type: ' . $this->_qr->getContentType());
-        return $this->_qr->writeString();
+        $QR = imagecreatefromstring(file_get_contents($QR));
+        $logo = imagecreatefromstring(file_get_contents($logo));
+        $QR_width = imagesx($QR);//二维码图片宽度
+        $logo_width = imagesx($logo);//logo图片宽度
+        $logo_height = imagesy($logo);//logo图片高度
+        $logo_qr_width = $QR_width / 5;
+        $scale = $logo_width / $logo_qr_width;
+        $logo_qr_height = $logo_height / $scale;
+        $from_width = ($QR_width - $logo_qr_width) / 2;
+        //重新组合图片并调整大小
+        imagecopyresampled($QR, $logo, $from_width, $from_width, 0, 0, $logo_qr_width,
+            $logo_qr_height, $logo_width, $logo_height);
+        //输出图片
+        imagepng($QR, 'qr_code.png');
+        return '<img src="qr_code.png">';
     }
 }

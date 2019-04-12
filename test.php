@@ -7,5 +7,5 @@
  */
 require_once './vendor/autoload.php';
 use DynamicQrCode\DynamicQrCode;
-$qrCode = new DynamicQrCode();
-echo $qrCode->toDynamicQrCode('https://www.baidu.com');
+$result =  DynamicQrCode::toDynamicQrCodePng('https://fx.diancang.site/activity/readbook');
+echo '<img src="'.$result.'"/>';

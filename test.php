@@ -7,5 +7,4 @@
  */
 require_once './vendor/autoload.php';
 use DynamicQrCode\DynamicQrCode;
-$result =  DynamicQrCode::toDynamicQrCodePng('https://fx.diancang.site/activity/readbook');
-echo '<img src="'.$result.'"/>';
+echo DynamicQrCode::toQrCode('https://fx.diancang.site/activity/readbook');

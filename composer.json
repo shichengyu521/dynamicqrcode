@@ -1,0 +1,22 @@
+{
+    "name": "shichengyu521/dynamicqrcode",
+    "description": "This is a dynamicqrcode demo",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "scy1030503929",
+            "email": "1030503929@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.0.0",
+        "endroid/qr-code": "^3.0@dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "DynamicQrCode\\": "src/DynamicQrCode"
+        }
+    }
+}

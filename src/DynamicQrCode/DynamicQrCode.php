@@ -18,7 +18,7 @@ class DynamicQrCode
      * @param string $logo
      * @return string
      */
-    public static function toErWeiMa($url = '', $path = '', $logo = '')
+    public function toErWeiMa($url = '', $path = '', $logo = '')
     {
         require_once 'phpqrcode.php';
         $value = $url;         //二维码内容
@@ -53,7 +53,7 @@ class DynamicQrCode
      * @param $url
      * @return array
      */
-    public static function toErWeiMaNotFile($url = '')
+    public function toErWeiMaNotFile($url = '')
     {
         require_once 'phpqrcode.php';
         $value = $url;         //二维码内容

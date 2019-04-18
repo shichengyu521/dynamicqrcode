@@ -9,49 +9,27 @@
 
 namespace DynamicQrCode;
 
-include 'phpqrcode/phpqrcode.php';
-
 class DynamicQrCode
 {
-
-    /**
-     * 生成二维码(生成图片文件)
-     * @param string $url
-     * @return string
-     */
-    public static function toQrCode($url = '')
-    {
-        $value = $url;         //二维码内容
-        $errorCorrectionLevel = 'L';  //容错级别
-        $matrixPointSize = 5;      //生成图片大小
-        //生成二维码图片
-        $filename = 'qrcode.png';
-        \QRcode::png($value, $filename, $errorCorrectionLevel, $matrixPointSize, 2);
-        $QR = $filename;        //已经生成的原始二维码图片文件
-        $QR = imagecreatefromstring(file_get_contents($QR));
-        //输出图片
-        imagepng($QR, 'qrcode.png');
-        imagedestroy($QR);
-        return '<img src="qrcode.png" alt="">';
-    }
-
     /**
      * 在生成的二维码中加上logo(生成图片文件)
      * @param string $url
+     * @param string $path
      * @param string $logo
      * @return string
      */
-    public static function toQrCodeLogo($url = '', $logo = '')
+    public static function toErWeiMa($url = '', $path = '', $logo = '')
     {
+        require_once 'phpqrcode.php';
         $value = $url;         //二维码内容
         $errorCorrectionLevel = 'H';  //容错级别
         $matrixPointSize = 6;      //生成图片大小
         //生成二维码图片
-        $filename = 'qrcode/' . microtime() . '.png';
+        $filename = preg_replace('#/$#', '', $path) . '/qrcode.png';
         \QRcode::png($value, $filename, $errorCorrectionLevel, $matrixPointSize, 2);
         $QR = $filename;      //已经生成的原始二维码图
+        $QR = imagecreatefromstring(file_get_contents($QR));    //目标图象连接资源。
         if (file_exists($logo)) {
-            $QR = imagecreatefromstring(file_get_contents($QR));    //目标图象连接资源。
             $logo = imagecreatefromstring(file_get_contents($logo));  //源图象连接资源。
             $QR_width = imagesx($QR);      //二维码图片宽度
             $logo_width = imagesx($logo);    //logo图片宽度
@@ -62,24 +40,37 @@ class DynamicQrCode
             $from_width = ($QR_width - $logo_qr_width) / 2;  //组合之后logo左上角所在坐标点
             //重新组合图片并调整大小
             imagecopyresampled($QR, $logo, $from_width, $from_width, 0, 0, $logo_qr_width, $logo_qr_height, $logo_width, $logo_height);
+            imagedestroy($logo);
         }
         //输出图片
-        imagepng($QR, 'qrcode.png');
+        imagepng($QR, $filename);
         imagedestroy($QR);
-        imagedestroy($logo);
-        return '<img src="qrcode.png" alt="">';
+        return '<img src="' . $filename . '" alt="">';
     }
 
     /**
-     * 生成二维码(不生成图片文件)
-     * @param string $url
+     * 生成二维码（不带文件）
+     * @param $url
+     * @return array
      */
-    public static function toQrCodeNotFile($url = '')
+    public static function toErWeiMaNotFile($url = '')
     {
+        require_once 'phpqrcode.php';
         $value = $url;         //二维码内容
-        $errorCorrectionLevel = 'L';  //容错级别
-        $matrixPointSize = 5;      //生成图片大小
+        $errorCorrectionLevel = 'H';  //容错级别
+        $matrixPointSize = 6;      //生成图片大小
+        //打开缓冲区
+        ob_start();
         //生成二维码图片
-        $QR = \QRcode::png($value, false, $errorCorrectionLevel, $matrixPointSize, 2);
+        \QRcode::png($value, false, $errorCorrectionLevel, $matrixPointSize, 2);
+        //这里就是把生成的图片流从缓冲区保存到内存对象上，使用base64_encode变成编码字符串，通过json返回给页面。
+        $imageString = base64_encode(ob_get_contents());
+        //关闭缓冲区
+        ob_end_clean();
+        $base64 = "data:image/png;base64," . $imageString;
+        $result['code'] = 0;
+        $result['msg'] = 'ok';
+        $result['data'] = $base64;
+        print_r($result);
     }
 }

@@ -7,4 +7,5 @@
  */
 require_once './vendor/autoload.php';
 use DynamicQrCode\DynamicQrCode;
-echo DynamicQrCode::toQrCode('https://fx.diancang.site/activity/readbook');
+//echo DynamicQrCode::toErWeiMa('https://fx.diancang.site/activity/readbook','./');
+echo DynamicQrCode::toErWeiMaNotFile('https://fx.diancang.site/activity/readbook');

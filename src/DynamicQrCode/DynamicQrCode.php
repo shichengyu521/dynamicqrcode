@@ -71,6 +71,6 @@ class DynamicQrCode
         $result['code'] = 0;
         $result['msg'] = 'ok';
         $result['data'] = $base64;
-        print_r($result);
+        return $result;
     }
 }
